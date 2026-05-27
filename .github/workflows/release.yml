@@ -32,7 +32,7 @@ jobs:
           VERSION="$(tr -d '[:space:]' < VERSION)"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "ipk=luci-theme-neonwrt-all.ipk" >> "$GITHUB_OUTPUT"
+          echo "ipk=luci-theme-neonwrt-v${VERSION}-all.ipk" >> "$GITHUB_OUTPUT"
 
       - name: Check tag exists
         id: tag_check

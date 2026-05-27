@@ -16,16 +16,16 @@ The package is pure LuCI template, CSS, and JavaScript, so it is architecture-in
 
 ## Install
 
-Download `luci-theme-neonwrt-all.ipk` from the latest GitHub Release, then upload it in LuCI:
+Download the versioned `luci-theme-neonwrt-vX.Y.Z-all.ipk` asset from the latest GitHub Release, then upload it in LuCI:
 
 `System -> Software -> Upload Package`
 
 Or install it from SSH:
 
 ```sh
-scp luci-theme-neonwrt-all.ipk root@192.168.1.1:/tmp/
+scp luci-theme-neonwrt-v0.1.10-all.ipk root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
-opkg install /tmp/luci-theme-neonwrt-all.ipk
+opkg install /tmp/luci-theme-neonwrt-v0.1.10-all.ipk
 ```
 
 The post-install script registers the theme and switches LuCI to:
@@ -41,7 +41,7 @@ The package does not ship `/etc/config/*` files, so it will not overwrite router
 The release asset is:
 
 ```text
-luci-theme-neonwrt-all.ipk
+luci-theme-neonwrt-v0.1.10-all.ipk
 ```
 
 Package metadata:
@@ -65,7 +65,7 @@ Release workflow:
 4. Refuse to release if router config files are present.
 5. Create a `vX.Y.Z` tag.
 6. Publish a GitHub Release with `Bug Fixes` and `Features` sections.
-7. Upload `luci-theme-neonwrt-all.ipk` and its SHA-256 file.
+7. Upload `luci-theme-neonwrt-vX.Y.Z-all.ipk` and its SHA-256 file.
 
 Conventional commits are used for release notes:
 
