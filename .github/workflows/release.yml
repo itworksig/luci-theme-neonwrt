@@ -117,14 +117,14 @@ jobs:
           if [ -n "$FIX_LINES" ]; then
             printf "%b\n" "$FIX_LINES" >> "$NOTES"
           else
-            printf "- No bug fixes in this release.\n\n" >> "$NOTES"
+            printf "%s\n\n" "- No bug fixes in this release." >> "$NOTES"
           fi
 
           printf "## Features\n\n" >> "$NOTES"
           if [ -n "$FEAT_LINES" ]; then
             printf "%b\n" "$FEAT_LINES" >> "$NOTES"
           else
-            printf "- No new features in this release.\n\n" >> "$NOTES"
+            printf "%s\n\n" "- No new features in this release." >> "$NOTES"
           fi
 
           echo "notes_path=${NOTES}" >> "$GITHUB_OUTPUT"
