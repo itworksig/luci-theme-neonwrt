@@ -1,0 +1,45 @@
+<%#
+  NeonWrt theme for LuCI
+-%>
+<%
+  local media = media or "/luci-static/neonwrt"
+  local boardinfo = luci.util.ubus("system", "board") or { }
+  local node = luci.dispatcher.context.dispatched
+  local hostname = luci.sys.hostname()
+-%>
+<!DOCTYPE html>
+<html lang="<%=luci.i18n.context.lang%>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no">
+  <title><%=striptags( hostname or "OpenWrt" )%> - LuCI</title>
+  <link rel="stylesheet" media="screen" href="<%=media%>/cascade.css">
+  <script src="<%=resource%>/cbi.js"></script>
+</head>
+<body class="lang_<%=luci.i18n.context.lang%>">
+  <header class="neonwrt-topbar">
+    <a class="brand" href="<%=url("admin/status/overview")%>">
+      <span class="brand-mark"></span>
+      <span class="brand-text">OpenWRT</span>
+    </a>
+    <div class="device-meta">
+      <span><%=striptags(boardinfo.model or "OpenWrt")%></span>
+      <span><%=striptags(boardinfo.release and boardinfo.release.description or "")%></span>
+    </div>
+  </header>
+  <div class="neonwrt-shell">
+    <aside class="neonwrt-sidebar">
+      <nav class="mainmenu">
+        <% render("themes/neonwrt/menu", {tree=luci.dispatcher.context.tree}) %>
+      </nav>
+    </aside>
+    <main class="neonwrt-main">
+      <% if luci.http.getenv("REQUEST_URI") ~= luci.dispatcher.build_url() then %>
+        <div class="breadcrumb">
+          <% local c = luci.dispatcher.context.path for i = 1, #c do %>
+            <span><%=pcdata(translate(c[i]))%></span>
+          <% end %>
+        </div>
+      <% end %>
+      <section class="content">

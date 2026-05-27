@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeonWrt LuCI Theme Preview</title>
+  <link rel="stylesheet" href="/luci-theme-neonwrt/root/www/luci-static/neonwrt/cascade.css">
+</head>
+<body>
+  <header class="neonwrt-topbar">
+    <a class="brand" href="#">
+      <span class="brand-mark"></span>
+      <span class="brand-text">OpenWRT</span>
+    </a>
+    <div class="device-meta">
+      <span>OpenWrt 23.05.5</span>
+      <span>Kernel 5.15.150</span>
+      <span>Router: online</span>
+    </div>
+  </header>
+  <div class="neonwrt-shell">
+    <aside class="neonwrt-sidebar">
+      <nav class="mainmenu">
+        <ul class="menu level-0">
+          <li><a class="active" href="#">Status</a>
+            <ul class="menu level-1">
+              <li><a href="#">Overview</a></li>
+              <li><a href="#">Firewall</a></li>
+              <li><a href="#">Routes</a></li>
+            </ul>
+          </li>
+          <li><a href="#">System</a>
+            <ul class="menu level-1">
+              <li><a href="#">Administration</a></li>
+              <li><a href="#">Software</a></li>
+              <li><a href="#">Startup</a></li>
+            </ul>
+          </li>
+          <li><a href="#">Network</a>
+            <ul class="menu level-1">
+              <li><a href="#">Interfaces</a></li>
+              <li><a href="#">Wireless</a></li>
+              <li><a href="#">DHCP/DNS</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <main class="neonwrt-main">
+      <div class="breadcrumb"><span>Administration</span><span>Status</span><span>Overview</span></div>
+      <section class="content">
+        <h1><span>System Status</span></h1>
+        <div class="cbi-section system-summary">
+          <div class="summary-head">
+            <div>
+              <span class="eyebrow">node / active</span>
+              <strong>OpenWrt-A1</strong>
+            </div>
+            <span class="badge good">system ready</span>
+          </div>
+          <table>
+            <tbody>
+              <tr><th>Model</th><td>ARMv8 Generic Router</td><th>Architecture</th><td>aarch64_cortex-a53</td></tr>
+              <tr><th>Firmware</th><td>OpenWrt 23.05.5 r24106</td><th>Kernel</th><td>5.15.150</td></tr>
+              <tr><th>Local Time</th><td>2026-05-27 23:08:41</td><th>Uptime</th><td>12d 08h 14m</td></tr>
+              <tr><th>Load Average</th><td>0.18, 0.12, 0.09</td><th>Memory</th><td>246 MB / 512 MB</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="a-grid">
+          <div class="a-card metric">
+            <span>Uptime</span>
+            <strong>12d 08h</strong>
+            <div class="bar"><i style="width: 68%"></i></div>
+          </div>
+          <div class="a-card metric">
+            <span>Load</span>
+            <strong>0.18</strong>
+            <div class="bar"><i style="width: 24%"></i></div>
+          </div>
+          <div class="a-card metric">
+            <span>Memory</span>
+            <strong>41%</strong>
+            <div class="bar"><i style="width: 41%"></i></div>
+          </div>
+          <div class="a-card metric">
+            <span>WAN</span>
+            <strong>1 Gbps</strong>
+            <span class="badge good">Connected</span>
+          </div>
+        </div>
+
+        <div class="cbi-section">
+          <h2>Interfaces</h2>
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Protocol</th><th>Address</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>lan</td><td>static</td><td>192.168.1.1/24</td><td><span class="badge good">Up</span></td><td><button>Edit</button></td></tr>
+              <tr><td>wan</td><td>dhcp</td><td>100.64.24.8</td><td><span class="badge good">Up</span></td><td><button>Edit</button></td></tr>
+              <tr><td>guest</td><td>static</td><td>192.168.8.1/24</td><td><span class="badge warn">Limited</span></td><td><button>Edit</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cbi-section">
+          <h2>Wireless</h2>
+          <p>SSID</p>
+          <input value="NeonWrt Wi-Fi">
+          <p>Encryption</p>
+          <select><option>WPA2/WPA3 Mixed</option><option>WPA3 SAE</option></select>
+          <p>
+            <button class="btn primary">Save & Apply</button>
+            <button class="btn danger">Reset</button>
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="/preview/preview.js"></script>
+</body>
+</html>

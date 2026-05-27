@@ -1,0 +1,63 @@
+{% include('header', { blank_page: true }) %}
+
+<main class="login-screen">
+	<section class="login-panel">
+		<header>
+			<span class="eyebrow">LuCI / restricted node</span>
+			<h1><span>{{ _('Login') }}</span></h1>
+			<p>{{ _('Authenticate to access the router control plane.') }}</p>
+		</header>
+
+		<form method="post" class="login-form">
+			<div class="login-field">
+				<label for="luci_username">{{ _('Username') }}</label>
+				<input name="luci_username" id="luci_username" type="text" autocomplete="username" value="{{ entityencode(duser, true) }}">
+			</div>
+
+			<div class="login-field">
+				<label for="luci_password">{{ _('Password') }}</label>
+				<input name="luci_password" id="luci_password" type="password" autocomplete="current-password">
+			</div>
+
+			{% if (auth_fields): %}
+				{% for (let field in auth_fields): %}
+					<div class="login-field">
+						<label for="{{ field.name }}">{{ _(field.label ?? field.name) }}</label>
+						<input
+							name="{{ field.name }}"
+							id="{{ field.name }}"
+							type="{{ field.type ?? 'text' }}"
+							{% if (field.placeholder): %}placeholder="{{ field.placeholder }}"{% endif %}
+							{% if (field.inputmode): %}inputmode="{{ field.inputmode }}"{% endif %}
+							{% if (field.pattern): %}pattern="{{ field.pattern }}"{% endif %}
+							{% if (field.maxlength): %}maxlength="{{ field.maxlength }}"{% endif %}
+							{% if (field.autocomplete): %}autocomplete="{{ field.autocomplete }}"{% endif %}
+							{% if (field.required): %}required{% endif %}
+						>
+					</div>
+				{% endfor %}
+			{% endif %}
+
+			{% if (auth_html): %}
+				<div>{{ auth_html }}</div>
+			{% endif %}
+
+			{% if (auth_message): %}
+				<div class="alert-message{% if (auth_plugin): %} warning{% endif %}">
+					{{ auth_message }}
+				</div>
+			{% elif (fuser): %}
+				<div class="alert-message error">
+					{{ _('Invalid username and/or password! Please try again.') }}
+				</div>
+			{% endif %}
+
+			<div class="login-actions">
+				<button class="btn primary cbi-button-positive important" type="submit">{{ _('Log in') }}</button>
+				<span class="login-status">auth channel ready</span>
+			</div>
+		</form>
+	</section>
+</main>
+
+{% include('footer', { blank_page: true }) %}

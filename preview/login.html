@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeonWrt LuCI Login Preview</title>
+  <link rel="stylesheet" href="/luci-theme-neonwrt/root/www/luci-static/neonwrt/cascade.css">
+</head>
+<body>
+  <header class="neonwrt-topbar">
+    <a class="brand" href="/preview/">
+      <span class="brand-mark"></span>
+      <span class="brand-text">OpenWRT</span>
+    </a>
+    <div class="device-meta">
+      <span>OpenWrt 23.05.5</span>
+      <span>secure shell</span>
+      <span>login required</span>
+    </div>
+  </header>
+
+  <main class="login-screen">
+    <section class="login-panel">
+      <header>
+        <span class="eyebrow">LuCI / restricted node</span>
+        <h1><span>Login</span></h1>
+        <p>Authenticate to access the router control plane.</p>
+      </header>
+      <form class="login-form">
+        <div class="login-field">
+          <label for="username">Username</label>
+          <input id="username" value="root" autocomplete="username">
+        </div>
+        <div class="login-field">
+          <label for="password">Password</label>
+          <input id="password" type="password" value="openwrt" autocomplete="current-password">
+        </div>
+        <div class="login-actions">
+          <button class="btn primary" type="button">Login</button>
+          <span class="login-status">auth channel ready</span>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "openwrt-theme-neonwrt",
+  "version": "0.1.10",
+  "private": true,
+  "description": "Local LuCI theme development environment for OpenWrt.",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "node scripts/validate-theme.mjs",
+    "package:theme": "node scripts/package-theme.mjs"
+  },
+  "devDependencies": {
+    "vite": "^7.2.0"
+  }
+}

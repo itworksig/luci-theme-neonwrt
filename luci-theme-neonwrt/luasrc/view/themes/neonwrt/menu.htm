@@ -1,0 +1,25 @@
+<%
+  local dispatcher = require "luci.dispatcher"
+  local function render_tree(tree, level)
+    if not tree then return end
+    local nodes = {}
+    for node, data in pairs(tree.nodes or {}) do
+      if data.title and data.target then
+        nodes[#nodes + 1] = {name = node, data = data}
+      end
+    end
+    table.sort(nodes, function(a, b)
+      return (a.data.order or 100) < (b.data.order or 100)
+    end)
+-%>
+<ul class="menu level-<%=level%>">
+  <% for _, entry in ipairs(nodes) do
+    local href = dispatcher.build_url(unpack(entry.data.path or {entry.name}))
+  %>
+    <li>
+      <a href="<%=href%>"><%=pcdata(translate(entry.data.title))%></a>
+      <% render_tree(entry.data, level + 1) %>
+    </li>
+  <% end %>
+</ul>
+<% end render_tree(tree, 0) %>

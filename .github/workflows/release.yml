@@ -1,0 +1,152 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - VERSION
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Package · Tag · Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read VERSION
+        id: ver
+        run: |
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "ipk=luci-theme-neonwrt-all.ipk" >> "$GITHUB_OUTPUT"
+
+      - name: Check tag exists
+        id: tag_check
+        run: |
+          if git ls-remote --tags origin "refs/tags/${{ steps.ver.outputs.tag }}" | grep -q .; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node.js
+        if: steps.tag_check.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.tag_check.outputs.exists == 'false'
+        run: npm ci
+
+      - name: Validate and package theme
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          npm run build
+          npm run package:theme
+
+      - name: Verify release package
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          test -f "dist/${{ steps.ver.outputs.ipk }}"
+          test -f "dist/luci-theme-neonwrt_${{ steps.ver.outputs.version }}-1_all.ipk"
+          tar -tzf "dist/luci-theme-neonwrt-${{ steps.ver.outputs.version }}.tar.gz" | grep -q '^luci-theme-neonwrt/root/etc/config/' && {
+            echo "Refusing to release package containing router config files."
+            exit 1
+          } || true
+          tar -tzf "dist/${{ steps.ver.outputs.ipk }}" | grep -qx './debian-binary'
+          tar -tzf "dist/${{ steps.ver.outputs.ipk }}" | grep -qx './control.tar.gz'
+          tar -tzf "dist/${{ steps.ver.outputs.ipk }}" | grep -qx './data.tar.gz'
+          mkdir -p /tmp/neonwrt-ipk-check
+          cp "dist/${{ steps.ver.outputs.ipk }}" /tmp/neonwrt-ipk-check/
+          cd /tmp/neonwrt-ipk-check
+          tar -xzf "${{ steps.ver.outputs.ipk }}"
+          tar -tzf data.tar.gz | grep -q '^./etc/config/' && {
+            echo "Refusing to release IPK containing router config files."
+            exit 1
+          } || true
+
+      - name: Generate release notes
+        if: steps.tag_check.outputs.exists == 'false'
+        id: notes
+        run: |
+          LAST_TAG="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+          if [ -n "$LAST_TAG" ]; then
+            COMMITS="$(git log "${LAST_TAG}..HEAD" --oneline --no-merges)"
+          else
+            COMMITS="$(git log --oneline --no-merges)"
+          fi
+
+          NOTES="$(mktemp)"
+          TODAY="$(date +%Y-%m-%d)"
+          {
+            printf "## %s (%s)\n\n" "${{ steps.ver.outputs.version }}" "$TODAY"
+            printf "### Install\n\n"
+            printf "Download **%s** from Assets. It is Architecture: all, so it supports OpenWrt devices across CPU architectures. Upload it in LuCI Package Manager or install it with:\n\n" "${{ steps.ver.outputs.ipk }}"
+            printf "\`\`\`sh\nopkg install /tmp/%s\n\`\`\`\n\n" "${{ steps.ver.outputs.ipk }}"
+          } >> "$NOTES"
+
+          FEAT_LINES=""
+          FIX_LINES=""
+
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            HASH="$(echo "$line" | cut -d' ' -f1)"
+            MSG="$(echo "$line" | cut -d' ' -f2-)"
+
+            if echo "$MSG" | grep -qiE "^feat(\([^)]*\))?:"; then
+              CLEAN="$(echo "$MSG" | sed -E 's/^feat\(([^)]+)\): /\1: /i; s/^feat: //i')"
+              FEAT_LINES="${FEAT_LINES}- ${CLEAN} (${HASH})\n"
+            elif echo "$MSG" | grep -qiE "^fix(\([^)]*\))?:"; then
+              CLEAN="$(echo "$MSG" | sed -E 's/^fix\(([^)]+)\): /\1: /i; s/^fix: //i')"
+              FIX_LINES="${FIX_LINES}- ${CLEAN} (${HASH})\n"
+            fi
+          done <<< "$COMMITS"
+
+          printf "## Bug Fixes\n\n" >> "$NOTES"
+          if [ -n "$FIX_LINES" ]; then
+            printf "%b\n" "$FIX_LINES" >> "$NOTES"
+          else
+            printf "- No bug fixes in this release.\n\n" >> "$NOTES"
+          fi
+
+          printf "## Features\n\n" >> "$NOTES"
+          if [ -n "$FEAT_LINES" ]; then
+            printf "%b\n" "$FEAT_LINES" >> "$NOTES"
+          else
+            printf "- No new features in this release.\n\n" >> "$NOTES"
+          fi
+
+          echo "notes_path=${NOTES}" >> "$GITHUB_OUTPUT"
+          cat "$NOTES"
+
+      - name: Create git tag
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.ver.outputs.tag }}" -m "Release ${{ steps.ver.outputs.tag }}"
+          git push origin "${{ steps.ver.outputs.tag }}"
+
+      - name: Create GitHub Release
+        if: steps.tag_check.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          body_path: ${{ steps.notes.outputs.notes_path }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/${{ steps.ver.outputs.ipk }}
+            dist/${{ steps.ver.outputs.ipk }}.sha256

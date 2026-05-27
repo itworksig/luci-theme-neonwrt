@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeonWrt LuCI Statistics Preview</title>
+  <link rel="stylesheet" href="/luci-theme-neonwrt/root/www/luci-static/neonwrt/cascade.css">
+</head>
+<body>
+  <header class="neonwrt-topbar">
+    <a class="brand" href="/preview/">
+      <span class="brand-mark"></span>
+      <span class="brand-text">OpenWRT</span>
+    </a>
+    <div class="device-meta">
+      <span>Status</span>
+      <span>System</span>
+      <span>Network</span>
+      <span>Statistics</span>
+      <span>Log out</span>
+    </div>
+  </header>
+
+  <div class="neonwrt-shell">
+    <aside class="neonwrt-sidebar">
+      <nav class="mainmenu">
+        <ul class="menu level-0">
+          <li><a href="/preview/">Status</a>
+            <ul class="menu level-1">
+              <li><a href="/preview/">Overview</a></li>
+              <li><a href="#">Firewall</a></li>
+              <li><a href="#">Routes</a></li>
+            </ul>
+          </li>
+          <li><a href="#">System</a>
+            <ul class="menu level-1">
+              <li><a href="#">Administration</a></li>
+              <li><a href="#">Software</a></li>
+              <li><a href="#">Startup</a></li>
+            </ul>
+          </li>
+          <li><a href="#">Network</a>
+            <ul class="menu level-1">
+              <li><a href="#">Interfaces</a></li>
+              <li><a href="#">Wireless</a></li>
+              <li><a href="#">DHCP/DNS</a></li>
+            </ul>
+          </li>
+          <li><a class="active" href="#">Statistics</a>
+            <ul class="menu level-1">
+              <li><a href="#">Graphs</a></li>
+              <li><a href="#">Setup</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="neonwrt-main">
+      <div class="breadcrumb"><span>Administration</span><span>Statistics</span><span>Graphs</span></div>
+      <section class="content">
+        <h1><span>Statistics</span></h1>
+
+        <div class="stats-toolbar">
+          <select>
+            <option>OpenWrt-A1</option>
+            <option>edge-node-02</option>
+          </select>
+          <button>Display Host</button>
+          <select>
+            <option>2 hours</option>
+            <option>24 hours</option>
+            <option>7 days</option>
+          </select>
+          <button>Display Timespan</button>
+          <select>
+            <option>Do not refresh</option>
+            <option>30 seconds</option>
+            <option>1 minute</option>
+          </select>
+          <button class="btn primary">Apply Interval</button>
+        </div>
+
+        <nav class="tabs" aria-label="Statistics graphs">
+          <a class="tab active" href="#">Processor</a>
+          <a class="tab" href="#">Interfaces</a>
+          <a class="tab" href="#">Wireless</a>
+          <a class="tab" href="#">System Load</a>
+          <a class="tab" href="#">Memory</a>
+        </nav>
+
+        <div class="stats-feed">
+          <article class="cbi-section rrd-card">
+            <div class="rrd-head">
+              <span class="rrd-title">OpenWrt-A1 / processor usage / core #0</span>
+              <span class="rrd-meta">timespan 2h / rrdtool</span>
+            </div>
+            <svg class="rrd-graph" viewBox="0 0 1200 320" role="img" aria-label="Processor usage graph for core 0">
+              <defs>
+                <pattern id="grid-major" width="120" height="60" patternUnits="userSpaceOnUse">
+                  <path d="M 120 0 L 0 0 0 60" fill="none" stroke="rgba(255,77,86,.42)" stroke-width="1"/>
+                </pattern>
+                <pattern id="grid-minor" width="24" height="12" patternUnits="userSpaceOnUse">
+                  <path d="M 24 0 L 0 0 0 12" fill="none" stroke="rgba(223,251,255,.16)" stroke-width="1"/>
+                </pattern>
+                <linearGradient id="user-fill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#2f7dff" stop-opacity=".42"/>
+                  <stop offset="1" stop-color="#2f7dff" stop-opacity=".05"/>
+                </linearGradient>
+                <linearGradient id="system-fill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="#ff4d56" stop-opacity=".40"/>
+                  <stop offset="1" stop-color="#ff4d56" stop-opacity=".06"/>
+                </linearGradient>
+              </defs>
+              <rect x="56" y="34" width="1100" height="214" fill="url(#grid-minor)"/>
+              <rect x="56" y="34" width="1100" height="214" fill="url(#grid-major)"/>
+              <path d="M56 190 L110 182 L164 188 L218 186 L272 192 L326 184 L380 190 L434 186 L488 182 L542 188 L596 180 L650 186 L704 184 L758 176 L812 182 L866 174 L920 168 L974 150 L1028 118 L1066 58 L1100 86 L1156 152 L1156 248 L56 248 Z" fill="url(#user-fill)"/>
+              <path d="M56 216 L110 206 L164 210 L218 208 L272 214 L326 206 L380 212 L434 210 L488 204 L542 212 L596 206 L650 210 L704 208 L758 198 L812 206 L866 194 L920 188 L974 176 L1028 134 L1066 86 L1100 124 L1156 180 L1156 248 L56 248 Z" fill="url(#system-fill)"/>
+              <polyline points="56,190 110,182 164,188 218,186 272,192 326,184 380,190 434,186 488,182 542,188 596,180 650,186 704,184 758,176 812,182 866,174 920,168 974,150 1028,118 1066,58 1100,86 1156,152" fill="none" stroke="#2f7dff" stroke-width="3"/>
+              <polyline points="56,216 110,206 164,210 218,208 272,214 326,206 380,212 434,210 488,204 542,212 596,206 650,210 704,208 758,198 812,206 866,194 920,188 974,176 1028,134 1066,86 1100,124 1156,180" fill="none" stroke="#ff4d56" stroke-width="3"/>
+              <polyline points="56,238 110,232 164,236 218,234 272,238 326,232 380,236 434,234 488,236 542,232 596,238 650,236 704,232 758,236 812,232 866,234 920,226 974,220 1028,214 1066,198 1100,224 1156,232" fill="none" stroke="#ff3cff" stroke-width="3"/>
+              <text x="590" y="24" fill="#dffbff" text-anchor="middle" font-size="18" font-weight="700">processor usage on core #0</text>
+              <text x="18" y="148" fill="#dffbff" font-size="14" transform="rotate(-90 18 148)">percent</text>
+              <text x="56" y="276" fill="rgba(223,251,255,.70)" font-size="13">16:20</text>
+              <text x="350" y="276" fill="rgba(223,251,255,.70)" font-size="13">17:00</text>
+              <text x="694" y="276" fill="rgba(223,251,255,.70)" font-size="13">17:40</text>
+              <text x="1040" y="276" fill="rgba(223,251,255,.70)" font-size="13">18:00</text>
+            </svg>
+            <div class="rrd-legend">
+              <span class="legend-item"><i class="legend-swatch swatch-idle"></i>nice avg 0.0 last 0.0</span>
+              <span class="legend-item"><i class="legend-swatch swatch-user"></i>user avg 8.3 last 12.5</span>
+              <span class="legend-item"><i class="legend-swatch swatch-system"></i>system avg 10.7 last 13.3</span>
+              <span class="legend-item"><i class="legend-swatch swatch-softirq"></i>softirq avg 1.9 last 1.7</span>
+            </div>
+          </article>
+
+          <article class="cbi-section rrd-card">
+            <div class="rrd-head">
+              <span class="rrd-title">OpenWrt-A1 / processor usage / core #1</span>
+              <span class="rrd-meta">timespan 2h / rrdtool</span>
+            </div>
+            <svg class="rrd-graph" viewBox="0 0 1200 320" role="img" aria-label="Processor usage graph for core 1">
+              <rect x="56" y="34" width="1100" height="214" fill="rgba(223,251,255,.025)"/>
+              <g stroke="rgba(223,251,255,.16)" stroke-width="1">
+                <path d="M56 70 H1156 M56 106 H1156 M56 142 H1156 M56 178 H1156 M56 214 H1156 M176 34 V248 M296 34 V248 M416 34 V248 M536 34 V248 M656 34 V248 M776 34 V248 M896 34 V248 M1016 34 V248"/>
+              </g>
+              <g stroke="rgba(255,77,86,.42)" stroke-width="1">
+                <path d="M56 34 H1156 M56 94 H1156 M56 154 H1156 M56 214 H1156 M56 34 V248 M296 34 V248 M536 34 V248 M776 34 V248 M1016 34 V248"/>
+              </g>
+              <path d="M56 188 L114 180 L172 186 L230 184 L288 190 L346 186 L404 188 L462 184 L520 186 L578 176 L636 188 L694 184 L752 188 L810 176 L868 180 L926 164 L984 144 L1030 108 L1064 64 L1098 92 L1156 156 L1156 248 L56 248 Z" fill="rgba(47,125,255,.30)"/>
+              <path d="M56 214 L114 204 L172 208 L230 206 L288 212 L346 208 L404 210 L462 206 L520 208 L578 198 L636 210 L694 206 L752 208 L810 196 L868 200 L926 188 L984 172 L1030 132 L1064 88 L1098 128 L1156 180 L1156 248 L56 248 Z" fill="rgba(255,77,86,.28)"/>
+              <polyline points="56,188 114,180 172,186 230,184 288,190 346,186 404,188 462,184 520,186 578,176 636,188 694,184 752,188 810,176 868,180 926,164 984,144 1030,108 1064,64 1098,92 1156,156" fill="none" stroke="#2f7dff" stroke-width="3"/>
+              <polyline points="56,214 114,204 172,208 230,206 288,212 346,208 404,210 462,206 520,208 578,198 636,210 694,206 752,208 810,196 868,200 926,188 984,172 1030,132 1064,88 1098,128 1156,180" fill="none" stroke="#ff4d56" stroke-width="3"/>
+              <polyline points="56,238 114,236 172,234 230,236 288,238 346,234 404,236 462,238 520,236 578,234 636,238 694,236 752,234 810,236 868,232 926,226 984,218 1030,206 1064,198 1098,224 1156,232" fill="none" stroke="#ff3cff" stroke-width="3"/>
+              <text x="590" y="24" fill="#dffbff" text-anchor="middle" font-size="18" font-weight="700">processor usage on core #1</text>
+              <text x="18" y="148" fill="#dffbff" font-size="14" transform="rotate(-90 18 148)">percent</text>
+            </svg>
+            <div class="rrd-legend">
+              <span class="legend-item"><i class="legend-swatch swatch-idle"></i>nice avg 0.0 last 0.0</span>
+              <span class="legend-item"><i class="legend-swatch swatch-user"></i>user avg 8.1 last 11.1</span>
+              <span class="legend-item"><i class="legend-swatch swatch-system"></i>system avg 11.5 last 13.9</span>
+              <span class="legend-item"><i class="legend-swatch swatch-softirq"></i>softirq avg 1.1 last 0.9</span>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

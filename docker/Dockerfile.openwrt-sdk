@@ -1,0 +1,28 @@
+FROM debian:stable-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    bash \
+    build-essential \
+    ca-certificates \
+    ccache \
+    file \
+    gawk \
+    gettext \
+    git \
+    libncurses5-dev \
+    libssl-dev \
+    python3 \
+    rsync \
+    subversion \
+    swig \
+    unzip \
+    wget \
+    zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+CMD ["/bin/bash"]
