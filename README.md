@@ -23,9 +23,9 @@ Download the versioned `luci-theme-neonwrt-vX.Y.Z-all.ipk` asset from the latest
 Or install it from SSH:
 
 ```sh
-scp luci-theme-neonwrt-v0.1.10-all.ipk root@192.168.1.1:/tmp/
+scp luci-theme-neonwrt-v0.1.11-all.ipk root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
-opkg install /tmp/luci-theme-neonwrt-v0.1.10-all.ipk
+opkg install /tmp/luci-theme-neonwrt-v0.1.11-all.ipk
 ```
 
 The post-install script registers the theme and switches LuCI to:
@@ -41,7 +41,7 @@ The package does not ship `/etc/config/*` files, so it will not overwrite router
 The release asset is:
 
 ```text
-luci-theme-neonwrt-v0.1.10-all.ipk
+luci-theme-neonwrt-v0.1.11-all.ipk
 ```
 
 Package metadata:
