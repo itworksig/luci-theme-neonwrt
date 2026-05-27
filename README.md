@@ -1,48 +1,133 @@
-# OpenWrt LuCI Theme: NeonWrt
+# luci-theme-neonwrt
 
-This workspace contains a lightweight OpenWrt LuCI theme package and a local Mac preview app.
+NeonWrt is a cyber-terminal LuCI theme for OpenWrt. It uses a dark grid surface, Space Mono typography, neon green accents, and compact router-first layouts for status, network, service, and system pages.
 
-## Local Preview
+The package is pure LuCI template, CSS, and JavaScript, so it is architecture-independent and is released as an `Architecture: all` OpenWrt package.
+
+## Preview
+
+### Login
+
+![NeonWrt login screen](docs/images/login.png)
+
+### Status Overview
+
+![NeonWrt status overview](docs/images/overview.png)
+
+## Install
+
+Download `luci-theme-neonwrt-all.ipk` from the latest GitHub Release, then upload it in LuCI:
+
+`System -> Software -> Upload Package`
+
+Or install it from SSH:
+
+```sh
+scp luci-theme-neonwrt-all.ipk root@192.168.1.1:/tmp/
+ssh root@192.168.1.1
+opkg install /tmp/luci-theme-neonwrt-all.ipk
+```
+
+The post-install script registers the theme and switches LuCI to:
+
+```sh
+/luci-static/neonwrt
+```
+
+The package does not ship `/etc/config/*` files, so it will not overwrite router network, system, DHCP, wireless, or service configuration.
+
+## Release Package
+
+The release asset is:
+
+```text
+luci-theme-neonwrt-all.ipk
+```
+
+Package metadata:
+
+```text
+Package: luci-theme-neonwrt
+Architecture: all
+```
+
+`Architecture: all` is intentional. NeonWrt contains no compiled binaries, so the same package can be installed on OpenWrt devices across CPU architectures such as MIPS, ARM, AArch64, and x86_64.
+
+## Automated Releases
+
+GitHub Actions builds releases from `VERSION`.
+
+Release workflow:
+
+1. Read `VERSION`.
+2. Validate the theme scaffold.
+3. Build a clean OpenWrt `.ipk`.
+4. Refuse to release if router config files are present.
+5. Create a `vX.Y.Z` tag.
+6. Publish a GitHub Release with `Bug Fixes` and `Features` sections.
+7. Upload `luci-theme-neonwrt-all.ipk` and its SHA-256 file.
+
+Conventional commits are used for release notes:
+
+```text
+feat: add dashboard panel
+fix: improve firewall table spacing
+```
+
+## Local Development
+
+Install dependencies:
 
 ```sh
 npm install
+```
+
+Run the local preview:
+
+```sh
 npm run dev
 ```
 
-Open the Vite URL and iterate on:
+Validate and package:
 
-- `luci-theme-neonwrt/root/www/luci-static/neonwrt/cascade.css`
-- `preview/index.html`
-- `preview/preview.js`
+```sh
+npm run build
+npm run package:theme
+```
 
-## Theme Package Layout
+Generated files are written to `dist/`, which is intentionally ignored by Git.
 
-- `luci-theme-neonwrt/Makefile` - OpenWrt package metadata.
-- `luci-theme-neonwrt/root/www/luci-static/neonwrt/cascade.css` - Theme stylesheet.
-- `luci-theme-neonwrt/luasrc/view/themes/neonwrt/header.htm` - LuCI theme header template.
-- `luci-theme-neonwrt/luasrc/view/themes/neonwrt/footer.htm` - LuCI theme footer template.
+## Project Layout
 
-## Use With OpenWrt SDK
+```text
+luci-theme-neonwrt/
+  Makefile
+  root/www/luci-static/neonwrt/
+  root/usr/share/ucode/luci/template/themes/neonwrt/
+  luasrc/view/themes/neonwrt/
 
-Copy or symlink `luci-theme-neonwrt` into an OpenWrt SDK package feed, then build:
+scripts/
+  package-theme.mjs
+  validate-theme.mjs
+
+.github/workflows/
+  release.yml
+```
+
+## OpenWrt SDK
+
+To build inside an OpenWrt SDK, copy or symlink `luci-theme-neonwrt` into a package feed, then run:
 
 ```sh
 make package/luci-theme-neonwrt/compile V=s
 ```
 
-If you already have an SDK extracted locally:
+For the local helper script:
 
 ```sh
 scripts/build-in-sdk.sh /path/to/openwrt-sdk
 ```
 
-For a Linux container shell with the common OpenWrt build dependencies:
+## License
 
-```sh
-docker build -f docker/Dockerfile.openwrt-sdk -t openwrt-theme-sdk .
-docker run --rm -it -v "$PWD:/workspace" openwrt-theme-sdk
-```
-
-After installing the generated `.ipk`, select the theme in LuCI:
-
-`System -> System -> Language and Style -> Design -> neonwrt`
+See [LICENSE](LICENSE).
