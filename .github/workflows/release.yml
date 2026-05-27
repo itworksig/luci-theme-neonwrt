@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - VERSION
+      - .github/workflows/release.yml
+      - luci-theme-neonwrt/**
+      - scripts/**
+      - package.json
+      - package-lock.json
   workflow_dispatch:
 
 permissions:
