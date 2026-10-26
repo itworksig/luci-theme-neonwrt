@@ -1547,15 +1547,18 @@ p.controls .cbi-button {
 .table .tr:last-child .th {
   border-bottom: 0;
 }
-.table .th:first-child,
-.table .td:first-child {
-  width: 38%;
-  color: var(--a-muted);
-  font-weight: 700;
-}
 .table .th:last-child,
 .table .td:last-child {
   color: var(--a-text);
+}
+
+/* Two-column status metrics (memory/storage). Do not apply to lease/assoc tables. */
+.table .tr:has(.cbi-progressbar) > .td:first-child,
+.table .tr:has(.cbi-progressbar) > .th:first-child {
+  width: 38%;
+  color: var(--a-muted);
+  font-weight: 700;
+  white-space: nowrap;
 }
 .cbi-progressbar {
   position: relative;
@@ -1778,4 +1781,56 @@ p.controls .cbi-button {
   background: rgba(6, 222, 107, .08);
   color: var(--a-text);
   padding: 2px 6px;
+}
+
+/* Multi-column LuCI tables: DHCP leases, associated stations, etc. */
+.table .tr.table-titles .th,
+.table .tr.cbi-section-table-titles .th,
+.table .tr.table-titles ~ .tr .th,
+.table .tr.table-titles ~ .tr .td,
+.table .tr.cbi-section-table-titles ~ .tr .th,
+.table .tr.cbi-section-table-titles ~ .tr .td {
+  width: auto;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  vertical-align: middle;
+}
+
+.table .tr.table-titles .th,
+.table .tr.cbi-section-table-titles .th {
+  color: var(--a-muted);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 10px 14px;
+}
+
+.table .tr.table-titles ~ .tr .td,
+.table .tr.cbi-section-table-titles ~ .tr .td {
+  padding: 12px 14px;
+}
+
+.table .th.cbi-section-actions,
+.table .td.cbi-section-actions {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+table.table {
+  table-layout: auto;
+  width: 100%;
+}
+
+#status_leases,
+#status_leases6,
+table.leases {
+  display: table;
+}
+
+.cbi-section:has(#status_leases),
+.cbi-section:has(#status_leases6),
+.cbi-section:has(table.leases) {
+  overflow-x: auto;
 }
