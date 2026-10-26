@@ -51,6 +51,7 @@
   }
 
   function enhanceOverview() {
+    return;
     if (!isOverview()) {
       return;
     }
@@ -75,6 +76,7 @@
   }
 
   function enhanceDhcpLeases() {
+    return;
     if (!isOverview() || document.querySelector('.neonwrt-lease-demo')) {
       return;
     }
@@ -235,6 +237,7 @@
   }
 
   function normalizeSystemInfo() {
+    return false;
     if (isNormalizing) {
       return false;
     }

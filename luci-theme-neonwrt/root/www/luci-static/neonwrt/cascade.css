@@ -1101,7 +1101,7 @@ button:hover,
 }
 
 .ifacebox {
-  min-width: 0;
+  min-width: 140px;
 }
 
 .ifacebox .cbi-tooltip-container,
@@ -1129,7 +1129,10 @@ button:hover,
 }
 
 .ifacebadge > img {
-  display: none !important;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
 }
 
 .cbi-tooltip:empty {
@@ -1138,7 +1141,7 @@ button:hover,
 
 .ifacebox .cbi-tooltip.ifacebadge.large,
 .ifacebadge .cbi-tooltip.ifacebadge.large {
-  display: none !important;
+  /* shown on hover via .cbi-tooltip-container */
 }
 
 .zonebadge {
@@ -1181,7 +1184,7 @@ button:hover,
 }
 
 .zonebadge > .cbi-tooltip {
-  display: none !important;
+  /* shown on hover via .cbi-tooltip-container */
 }
 
 .zonebadge.zonebadge-empty {
@@ -1519,4 +1522,260 @@ p.controls .cbi-button {
   .rrd-legend {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* LuCI 25 status widgets use div.table/.tr/.td plus .cbi-progressbar.
+   Without these rules the labels render as blocks and the values stay invisible. */
+.table {
+  display: table;
+  width: 100%;
+  margin: 0 0 18px;
+  border-collapse: collapse;
+}
+.tr {
+  display: table-row;
+}
+.table .th,
+.table .td {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--a-line-soft);
+}
+.table .tr:last-child .td,
+.table .tr:last-child .th {
+  border-bottom: 0;
+}
+.table .th:first-child,
+.table .td:first-child {
+  width: 38%;
+  color: var(--a-muted);
+  font-weight: 700;
+}
+.table .th:last-child,
+.table .td:last-child {
+  color: var(--a-text);
+}
+.cbi-progressbar {
+  position: relative;
+  min-width: 170px;
+  height: 8px;
+  margin: 1.6em 0 6px;
+  border: 1px solid var(--a-line);
+  background: rgba(223, 251, 255, .08);
+}
+.cbi-progressbar > div {
+  height: 100%;
+  width: 0;
+  background: var(--a-accent);
+  box-shadow: 0 0 18px rgba(6, 222, 107, .45);
+}
+.cbi-progressbar::before {
+  position: absolute;
+  top: -1.4em;
+  left: 0;
+  content: attr(title);
+  color: var(--a-text);
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- LuCI 25 status cards, ports, and hover tooltips ---- */
+.cbi-tooltip-container {
+  position: relative;
+  cursor: help;
+}
+
+.cbi-tooltip {
+  position: absolute;
+  z-index: 1400;
+  top: calc(100% + 8px);
+  left: -10000px;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  text-align: left;
+  color: var(--a-text);
+  background: rgba(7, 16, 28, .96);
+  border: 1px solid var(--a-line);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .45), 0 0 18px rgba(6, 222, 107, .12);
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.cbi-tooltip-container:hover > .cbi-tooltip:not(:empty),
+.cbi-tooltip-container:focus-within > .cbi-tooltip:not(:empty) {
+  left: 0;
+  opacity: 1;
+}
+
+.cbi-tooltip.left {
+  left: -10000px;
+}
+
+.cbi-tooltip-container:hover > .cbi-tooltip.left:not(:empty),
+.cbi-tooltip-container:focus-within > .cbi-tooltip.left:not(:empty) {
+  left: 0;
+}
+
+.network-status-table {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.network-status-table .ifacebox {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 280px;
+  min-width: 240px;
+  max-width: 100%;
+  margin: 0;
+  overflow: visible;
+  text-align: left;
+  background: rgba(7, 16, 28, .62);
+  border: 1px solid var(--a-line-soft);
+  border-radius: 8px;
+}
+
+.network-status-table .ifacebox-head {
+  border: 0;
+  border-bottom: 1px solid var(--a-line-soft);
+  border-radius: 0;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.network-status-table .ifacebox-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.network-status-table .ifacebox-body > span {
+  color: var(--a-dim);
+}
+
+.network-status-table .ifacebox-body .ifacebadge {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--a-line-soft);
+  border-radius: 6px;
+  background: rgba(6, 222, 107, .05);
+}
+
+.ifacebox {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: visible;
+  background: rgba(7, 16, 28, .72);
+  border: 1px solid var(--a-line-soft);
+  border-radius: 8px;
+}
+
+.ifacebox-head {
+  text-align: center;
+}
+
+.ifacebox-body {
+  padding: 10px 8px;
+  color: var(--a-dim);
+  font-size: 12px;
+}
+
+.ifacebox-body img[src*="port_"] {
+  display: block;
+  width: 52px;
+  height: 52px;
+  margin: 8px auto 6px;
+  filter: none;
+  opacity: 1;
+}
+
+.ifacebox-body img[src*="port_down"] {
+  opacity: .72;
+  filter: grayscale(.35) brightness(1.15);
+}
+
+/* Port status: LuCI inlines a 1fr grid that stretches a single card across the panel. */
+.cbi-section div[style*="minmax(70px"] {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-start;
+  align-items: stretch;
+  margin: 4px 0 8px !important;
+}
+
+.cbi-section div[style*="minmax(70px"] > .ifacebox {
+  flex: 0 0 168px;
+  width: 168px;
+  min-width: 168px !important;
+  max-width: 168px !important;
+  margin: 0 !important;
+}
+
+.cbi-section div[style*="minmax(70px"] > .ifacebox > .ifacebox-head:first-child {
+  margin: 0;
+  padding: 10px 10px 8px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  border: 0 !important;
+  border-bottom: 1px solid var(--a-line-soft) !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+/* Thin zone color strip, not a second green title bar. */
+.ifacebox > .ifacebox-head.cbi-tooltip-container {
+  display: flex !important;
+  align-items: center;
+  min-height: 0;
+  margin: 0;
+  padding: 0 10px 8px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0;
+  text-shadow: none;
+}
+
+.ifacebox > .ifacebox-head.cbi-tooltip-container .zonebadge {
+  flex: 1;
+  height: 4px !important;
+  min-height: 4px;
+  padding: 0 !important;
+  border: 0;
+  border-radius: 99px;
+  opacity: .85 !important;
+}
+
+.cbi-section div[style*="minmax(70px"] > .ifacebox > .ifacebox-body:last-child {
+  padding-top: 0;
+}
+
+.cbi-section div[style*="minmax(70px"] .cbi-tooltip-container {
+  width: 100%;
+  color: var(--a-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ifacebadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--a-line-soft);
+  border-radius: 4px;
+  background: rgba(6, 222, 107, .08);
+  color: var(--a-text);
+  padding: 2px 6px;
 }
