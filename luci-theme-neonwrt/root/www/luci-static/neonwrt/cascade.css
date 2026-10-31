@@ -434,8 +434,7 @@ p {
 
 .cbi-section,
 .a-card,
-.modal,
-.alert-message {
+.modal {
   border: 1px solid var(--a-line);
   border-radius: 8px;
   background:
@@ -449,6 +448,83 @@ p {
     linear-gradient(#5ce1ff, #5ce1ff) right 10px bottom 10px / 1px 16px no-repeat,
     #070e18;
   box-shadow: 0 0 0 1px rgba(92, 225, 255, .04), var(--a-shadow);
+}
+
+.alert-message {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 0 0 18px;
+  padding: 12px 14px 12px 16px;
+  border: 1px solid rgba(241, 203, 98, .42);
+  border-left: 2px solid var(--a-warn);
+  border-radius: 2px;
+  background: rgba(28, 24, 10, .94);
+  box-shadow: none;
+  color: var(--a-text);
+}
+
+.alert-message.warning {
+  border-color: rgba(241, 203, 98, .42);
+  border-left-color: var(--a-warn);
+  background: rgba(28, 24, 10, .94);
+}
+
+.alert-message.error,
+.alert-message.danger {
+  border-color: rgba(255, 95, 114, .46);
+  border-left-color: var(--a-bad);
+  background: rgba(32, 10, 16, .94);
+}
+
+.alert-message.info,
+.alert-message.notice,
+.alert-message.success {
+  border-color: rgba(92, 225, 255, .4);
+  border-left-color: var(--a-accent);
+  background: rgba(7, 16, 24, .94);
+}
+
+.alert-message h2::before,
+.alert-message h2::after,
+.alert-message h4::before,
+.alert-message h4::after {
+  content: none;
+}
+
+.alert-message h4,
+.alert-message h2 {
+  flex: 1 1 100%;
+  margin: 0;
+  color: var(--a-text);
+  font-size: 14px;
+  letter-spacing: .04em;
+}
+
+.alert-message p {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  color: var(--a-text);
+}
+
+.alert-message > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.alert-message .right,
+.alert-message > div:last-child:not(:first-child) {
+  margin-left: auto;
+}
+
+.alert-message .btn,
+.alert-message button {
+  align-self: center;
+  min-height: 32px;
+  margin: 0 !important;
+  padding: 4px 12px;
 }
 
 .cbi-section,

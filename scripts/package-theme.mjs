@@ -61,7 +61,7 @@ await writeFile(join(controlDir, 'control'), [
   'Section: luci',
   'Priority: optional',
   'Depends: luci-base',
-  'Source: https://github.com/itworksig/luci-theme-neowrt',
+  'Source: https://github.com/itworksig/luci-theme-neonwrt',
   'Description: NeonWrt cyber terminal LuCI theme',
   ''
 ].join('\n'));

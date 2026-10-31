@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-theme-neonwrt
-PKG_VERSION:=0.1.33
+PKG_VERSION:=0.1.34
 PKG_RELEASE:=1
 
 LUCI_TITLE:=NeonWrt LuCI theme

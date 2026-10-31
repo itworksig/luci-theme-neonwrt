@@ -2,7 +2,7 @@
 		</div>
 		<footer>
 			<span>
-				<a href="https://github.com/itworksig/luci-theme-neowrt" target="_blank" rel="noreferrer">OpenWRT Theme</a>
+				<a href="https://github.com/itworksig/luci-theme-neonwrt" target="_blank" rel="noreferrer">NeonWrt</a>
 				/
 				<a href="https://github.com/openwrt/luci" target="_blank" rel="noreferrer">
 					{{ version.luciname }} ({{ version.luciversion }})</a>
