@@ -353,6 +353,50 @@
     });
   }
 
+  function installMobileMenu() {
+    var nav = document.querySelector('#topmenu');
+
+    if (!nav || nav.dataset.neonwrtMenu) {
+      return;
+    }
+
+    nav.dataset.neonwrtMenu = '1';
+    nav.addEventListener('click', function (event) {
+      var link = event.target.closest ? event.target.closest('a.menu') : null;
+
+      if (!link || !nav.contains(link)) {
+        return;
+      }
+
+      var item = link.parentNode;
+
+      if (!item || !item.querySelector('.dropdown-menu, ul')) {
+        return;
+      }
+
+      event.preventDefault();
+      var willOpen = !item.classList.contains('open');
+
+      Array.prototype.forEach.call(nav.querySelectorAll('.dropdown.open, li.open'), function (openItem) {
+        openItem.classList.remove('open');
+      });
+
+      if (willOpen) {
+        item.classList.add('open');
+      }
+    });
+
+    document.addEventListener('click', function (event) {
+      if (nav.contains(event.target)) {
+        return;
+      }
+
+      Array.prototype.forEach.call(nav.querySelectorAll('.dropdown.open, li.open'), function (openItem) {
+        openItem.classList.remove('open');
+      });
+    });
+  }
+
   function enhancePasswordRevealButtons() {
     Array.prototype.slice.call(document.querySelectorAll('button[aria-label="Reveal/hide password"]')).forEach(function (button) {
       var input = button.parentNode && button.parentNode.querySelector('input.cbi-input-password');
@@ -393,5 +437,6 @@
     installOverviewObserver();
     installSystemPageObserver();
     enhancePasswordRevealButtons();
+    installMobileMenu();
   });
 })();

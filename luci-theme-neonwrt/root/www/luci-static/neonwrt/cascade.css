@@ -1501,7 +1501,7 @@ p.controls .cbi-button {
   }
 
   table {
-    min-width: 620px;
+    min-width: 0;
   }
 
   .system-summary table {
@@ -1833,4 +1833,150 @@ table.leases {
 .cbi-section:has(#status_leases6),
 .cbi-section:has(table.leases) {
   overflow-x: auto;
+}
+
+/* Phone layout. These rules stay last so they win over desktop table/nowrap styles. */
+@media (max-width: 860px) {
+  .neonwrt-topbar {
+    flex-wrap: wrap;
+    align-items: center;
+    overflow: visible;
+    height: auto;
+    min-height: 52px;
+    padding: 8px 12px 6px;
+    gap: 2px 10px;
+  }
+
+  .brand {
+    font-size: 18px;
+  }
+
+  #indicators {
+    margin-left: auto;
+  }
+
+  .luci-topbar .nav {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    max-width: 100%;
+    overflow: visible;
+    gap: 2px;
+  }
+
+  .luci-topbar .nav > li > a,
+  .luci-topbar .nav > li > span {
+    min-height: 36px;
+    padding: 6px 10px;
+  }
+
+  .luci-topbar .dropdown-menu,
+  .luci-topbar .nav ul {
+    max-height: min(60vh, 420px);
+    overflow: auto;
+    min-width: min(220px, calc(100vw - 24px));
+  }
+
+  .luci-topbar .nav > li:nth-last-child(-n+2) > .dropdown-menu,
+  .luci-topbar .nav > li:nth-last-child(-n+2) > ul {
+    left: auto;
+    right: 0;
+  }
+
+  .cbi-section::after,
+  .a-card::after {
+    content: none;
+  }
+
+  .cbi-value {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .cbi-value-title {
+    padding-top: 0;
+  }
+
+  .cbi-section-actions,
+  .add-item.control-group {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  #maincontent.container,
+  .neonwrt-luci-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  table {
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  table:not(:has(tr > :nth-child(3))) {
+    table-layout: fixed;
+  }
+
+  table:not(:has(tr > :nth-child(3))) th,
+  table:not(:has(tr > :nth-child(3))) td {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .cbi-section:has(table:has(tr > :nth-child(3))) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table:has(tr > :nth-child(3)) {
+    width: max-content;
+    min-width: 100% !important;
+  }
+
+  div.table {
+    display: block;
+    width: 100%;
+  }
+
+  div.table > .tr {
+    display: block;
+    width: 100%;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--a-line-soft);
+  }
+
+  div.table > .tr > .td,
+  div.table > .tr > .th {
+    display: block;
+    width: auto !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    border-bottom: 0;
+    padding: 4px 0;
+  }
+
+  .cbi-progressbar {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .cbi-progressbar::before {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .network-status-table .ifacebox {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .cbi-section div[style*="minmax(70px"] > .ifacebox {
+    flex: 1 1 calc(50% - 12px);
+    width: auto;
+    min-width: 0 !important;
+    max-width: calc(50% - 6px) !important;
+  }
 }
