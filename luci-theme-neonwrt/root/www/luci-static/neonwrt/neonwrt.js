@@ -353,6 +353,305 @@
     });
   }
 
+  function ubusCall(object, method, params) {
+    if (!window.L || !L.env || !L.env.sessionid || !window.fetch) {
+      return Promise.resolve(null);
+    }
+
+    return fetch('/ubus/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: Date.now(),
+        method: 'call',
+        params: [L.env.sessionid, object, method, params || {}]
+      })
+    }).then(function (response) {
+      return response.ok ? response.json() : null;
+    }).then(function (payload) {
+      return payload && payload.result && payload.result[0] === 0 ? payload.result[1] : null;
+    }).catch(function () {
+      return null;
+    });
+  }
+
+  function formatMiB(bytes) {
+    var value = (Number(bytes) || 0) / 1048576;
+
+    if (value >= 1024) {
+      return (value / 1024).toFixed(2) + ' GiB';
+    }
+
+    return (value >= 10 ? value.toFixed(0) : value.toFixed(1)) + ' MiB';
+  }
+
+  function formatUptime(seconds) {
+    seconds = Math.max(0, Math.floor(Number(seconds) || 0));
+    var days = Math.floor(seconds / 86400);
+    var hours = Math.floor((seconds % 86400) / 3600);
+    var minutes = Math.floor((seconds % 3600) / 60);
+
+    if (days > 0) {
+      return days + 'd ' + hours + 'h';
+    }
+
+    return hours + 'h ' + minutes + 'm';
+  }
+
+  function isMonoText(text) {
+    if (!text || text.length > 96) {
+      return false;
+    }
+
+    return /^(?:\d{1,3}\.){3}\d{1,3}(?:\/\d{1,2})?$/.test(text) ||
+      /^[0-9a-f]{2}(?::[0-9a-f]{2}){5}$/i.test(text) ||
+      (/^[0-9a-f:]+$/i.test(text) && text.split(':').length > 2) ||
+      /^\d+(?:\.\d+)?\s*(?:B|KB|MB|GB|TB|KiB|MiB|GiB|TiB)(?:\s*\/\s*\d+(?:\.\d+)?\s*(?:B|KB|MB|GB|TB|KiB|MiB|GiB|TiB))?$/i.test(text) ||
+      /^(?:\d+d\s+)?\d+h\s+\d+m(?:\s+\d+s)?$/.test(text) ||
+      /^\d+(?:\.\d+)?(?:,\s*\d+(?:\.\d+)?){1,3}$/.test(text);
+  }
+
+  function setMetric(card, value, sub, state) {
+    var strong = card.querySelector('strong');
+    var note = card.querySelector('.neonwrt-metric-sub');
+
+    if (strong.textContent !== value) {
+      strong.textContent = value;
+    }
+
+    if (note.textContent !== sub) {
+      note.textContent = sub;
+    }
+
+    card.classList.toggle('is-warn', state === 'warn');
+    card.classList.toggle('is-bad', state === 'bad');
+  }
+
+  function findWan(dump) {
+    var list = dump && dump.interface || [];
+    var i;
+    var j;
+    var routes;
+
+    for (i = 0; i < list.length; i++) {
+      routes = list[i].route || [];
+      for (j = 0; j < routes.length; j++) {
+        if (routes[j].target === '0.0.0.0' && Number(routes[j].mask) === 0) {
+          return list[i];
+        }
+      }
+    }
+
+    for (i = 0; i < list.length; i++) {
+      if (/wan|wwan|cell|modem/i.test(list[i].interface || '') && list[i].up) {
+        return list[i];
+      }
+    }
+
+    return null;
+  }
+
+  function installOverviewMetrics() {
+    if (!isOverview() || document.querySelector('.neonwrt-metrics')) {
+      return;
+    }
+
+    var anchor = document.querySelector('#maincontent .cbi-section, #maincontent .table, #maincontent h2');
+
+    if (!anchor || !anchor.parentNode) {
+      return;
+    }
+
+    var wrap = document.createElement('section');
+    wrap.className = 'neonwrt-metrics';
+    wrap.innerHTML = [
+      '<article class="neonwrt-metric" data-metric="wan"><span class="eyebrow">WAN</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>',
+      '<article class="neonwrt-metric" data-metric="devices"><span class="eyebrow">在线设备</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>',
+      '<article class="neonwrt-metric" data-metric="memory"><span class="eyebrow">内存</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>',
+      '<article class="neonwrt-metric" data-metric="uptime"><span class="eyebrow">已运行时长</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>'
+    ].join('');
+    anchor.parentNode.insertBefore(wrap, anchor.closest ? (anchor.closest('.cbi-section') || anchor) : anchor);
+    refreshOverviewMetrics();
+  }
+
+  function refreshOverviewMetrics() {
+    var wrap = document.querySelector('.neonwrt-metrics');
+
+    if (!wrap || !isOverview()) {
+      return;
+    }
+
+    Promise.all([
+      ubusCall('network.interface', 'dump'),
+      ubusCall('system', 'info'),
+      ubusCall('luci-rpc', 'getDHCPLeases')
+    ]).then(function (result) {
+      var wan = findWan(result[0]);
+      var info = result[1] || {};
+      var leases = result[2] || {};
+      var address = wan && wan['ipv4-address'] && wan['ipv4-address'][0] && wan['ipv4-address'][0].address;
+      var memory = info.memory || {};
+      var total = Number(memory.total) || 0;
+      var available = Number(memory.available != null ? memory.available : memory.free) || 0;
+      var used = Math.max(0, total - available);
+      var ratio = total ? used / total : 0;
+      var leaseCount = (leases.dhcp_leases || []).length;
+
+      setMetric(
+        wrap.querySelector('[data-metric="wan"]'),
+        wan && wan.up ? (address || '已连接') : '未连接',
+        wan && wan.up ? (wan.interface || 'wan') : '链路断开',
+        wan && wan.up ? '' : 'bad'
+      );
+      setMetric(
+        wrap.querySelector('[data-metric="devices"]'),
+        String(leaseCount),
+        'DHCP 租约',
+        ''
+      );
+      setMetric(
+        wrap.querySelector('[data-metric="memory"]'),
+        total ? formatMiB(used) : '--',
+        total ? ('共 ' + formatMiB(total)) : '内存',
+        ratio >= 0.9 ? 'bad' : (ratio >= 0.75 ? 'warn' : '')
+      );
+      setMetric(
+        wrap.querySelector('[data-metric="uptime"]'),
+        info.uptime != null ? formatUptime(info.uptime) : '--',
+        '自启动',
+        ''
+      );
+    });
+  }
+
+  function dressCollapse() {
+    Array.prototype.forEach.call(document.querySelectorAll('h2 span, h3 span, legend span, .cbi-section-title span, .cbi-section button'), function (button) {
+      var text = (button.textContent || '').replace(/\s+/g, '');
+
+      if (!/^(隐藏|显示|Hide|Show)$/.test(text)) {
+        return;
+      }
+
+      button.classList.add('neonwrt-collapse');
+      button.classList.toggle('is-collapsed', /显示|Show/.test(text));
+      button.setAttribute('aria-label', text);
+    });
+  }
+
+  function dressBars() {
+    Array.prototype.forEach.call(document.querySelectorAll('.cbi-progressbar'), function (bar) {
+      var fill = bar.querySelector(':scope > div');
+
+      if (fill && !bar.querySelector('.neonwrt-bar-track')) {
+        var track = document.createElement('div');
+        track.className = 'neonwrt-bar-track';
+        bar.insertBefore(track, fill);
+        track.appendChild(fill);
+      }
+
+      fill = bar.querySelector('.neonwrt-bar-track > div');
+      var percent = fill ? parseFloat(fill.style.width) : 0;
+      bar.classList.toggle('is-bad', percent >= 90);
+      bar.classList.toggle('is-warn', percent >= 75 && percent < 90);
+    });
+  }
+
+  function dressMono() {
+    Array.prototype.forEach.call(document.querySelectorAll('td, .td'), function (cell) {
+      if (cell.querySelector('.cbi-progressbar, table, input, select, button')) {
+        return;
+      }
+
+      var text = (cell.textContent || '').replace(/\s+/g, ' ').trim();
+      cell.classList.toggle('neonwrt-mono', isMonoText(text));
+    });
+  }
+
+  function dressEmpty() {
+    Array.prototype.forEach.call(document.querySelectorAll('em, p, .alert-message'), function (note) {
+      var text = note.textContent || '';
+
+      if (note.closest('.neonwrt-empty')) {
+        return;
+      }
+
+      if (!/没有|暂无|无活动|no active|no information|not associated|no dhcp|no wireless|no leases/i.test(text)) {
+        return;
+      }
+
+      var section = note.closest('.cbi-section');
+      var heading = section && section.querySelector('h2, h3, legend');
+      var title = heading ? heading.textContent : '';
+
+      if (!/租约|无线|DHCP|Wireless|Associated|站点|station|lease/i.test(title)) {
+        return;
+      }
+
+      var panel = document.createElement('div');
+      panel.className = 'neonwrt-empty';
+      panel.innerHTML = '<span class="eyebrow">idle</span><strong>暂无设备</strong>';
+      var row = note.closest('tr, .tr');
+      var table = row && row.closest('table, .table');
+      var dataCells = table ? table.querySelectorAll('td, .td') : [];
+
+      if (table && dataCells.length <= 1) {
+        table.replaceWith(panel);
+      } else if (!row) {
+        note.replaceWith(panel);
+      } else {
+        note.replaceWith(panel);
+      }
+    });
+  }
+
+  function placeLogout() {
+    var nav = document.querySelector('#topmenu');
+    var indicators = document.querySelector('#indicators');
+
+    if (!nav || !indicators) {
+      return;
+    }
+
+    Array.prototype.slice.call(nav.children).forEach(function (item) {
+      var link = item.querySelector(':scope > a');
+      var label = link ? link.textContent.replace(/\s+/g, '') : '';
+
+      if (link && (label === '退出' || label === 'Logout' || /logout/i.test(link.getAttribute('href') || ''))) {
+        item.classList.add('neonwrt-logout');
+        indicators.appendChild(item);
+      }
+    });
+  }
+
+  function installNavToggle() {
+    var header = document.querySelector('.neonwrt-topbar');
+    var nav = document.querySelector('#topmenu');
+
+    if (!header || !nav || header.querySelector('.neonwrt-nav-toggle')) {
+      return;
+    }
+
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'neonwrt-nav-toggle';
+    button.setAttribute('aria-label', '菜单');
+    button.setAttribute('aria-expanded', 'false');
+    button.innerHTML = '<span></span><span></span><span></span>';
+    header.insertBefore(button, nav);
+    button.addEventListener('click', function (event) {
+      event.stopPropagation();
+      var open = document.body.classList.toggle('neonwrt-nav-open');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (event) {
+      if (!header.contains(event.target)) {
+        document.body.classList.remove('neonwrt-nav-open');
+        button.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   function installMobileMenu() {
     var nav = document.querySelector('#topmenu');
 
@@ -383,6 +682,21 @@
 
       if (willOpen) {
         item.classList.add('open');
+      }
+    });
+
+    nav.addEventListener('click', function (event) {
+      var link = event.target.closest ? event.target.closest('a') : null;
+
+      if (!link || link.classList.contains('menu')) {
+        return;
+      }
+
+      document.body.classList.remove('neonwrt-nav-open');
+      var toggle = document.querySelector('.neonwrt-nav-toggle');
+
+      if (toggle) {
+        toggle.setAttribute('aria-expanded', 'false');
       }
     });
 
@@ -427,6 +741,13 @@
       enhanceOverview();
       enhanceDhcpLeases();
       enhancePasswordRevealButtons();
+      installNavToggle();
+      placeLogout();
+      installOverviewMetrics();
+      dressCollapse();
+      dressBars();
+      dressMono();
+      dressEmpty();
       var normalized = normalizeSystemInfo();
 
       if (++tries > 30 && (document.querySelector('.connected-devices') || normalized)) {
@@ -438,5 +759,7 @@
     installSystemPageObserver();
     enhancePasswordRevealButtons();
     installMobileMenu();
+    installNavToggle();
+    setInterval(refreshOverviewMetrics, 5000);
   });
 })();
