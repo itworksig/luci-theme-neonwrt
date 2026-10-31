@@ -1,6 +1,7 @@
 (function () {
   var isNormalizing;
   var overviewTimer;
+  var trafficSample;
 
   function sectionTitle(section) {
     var heading = section && section.querySelector('h2, h3, legend, .cbi-section-title');
@@ -387,6 +388,35 @@
     return (value >= 10 ? value.toFixed(0) : value.toFixed(1)) + ' MiB';
   }
 
+  function formatBytes(bytes) {
+    var units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    var value = Math.max(0, Number(bytes) || 0);
+    var i = 0;
+
+    while (value >= 1024 && i < units.length - 1) {
+      value /= 1024;
+      i += 1;
+    }
+
+    return value.toFixed(i === 0 || value >= 100 ? 0 : (value >= 10 ? 1 : 2)) + ' ' + units[i];
+  }
+
+  function formatRate(bytesPerSec) {
+    if (!isFinite(bytesPerSec) || bytesPerSec < 0) {
+      return '--';
+    }
+
+    if (bytesPerSec < 1024) {
+      return Math.round(bytesPerSec) + ' B/s';
+    }
+
+    if (bytesPerSec < 1048576) {
+      return (bytesPerSec / 1024).toFixed(bytesPerSec >= 10240 ? 0 : 1) + ' KB/s';
+    }
+
+    return (bytesPerSec / 1048576).toFixed(bytesPerSec >= 10485760 ? 1 : 2) + ' MB/s';
+  }
+
   function formatUptime(seconds) {
     seconds = Math.max(0, Math.floor(Number(seconds) || 0));
     var days = Math.floor(seconds / 86400);
@@ -470,7 +500,9 @@
       '<article class="neonwrt-metric" data-metric="wan"><span class="eyebrow">WAN</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>',
       '<article class="neonwrt-metric" data-metric="devices"><span class="eyebrow">在线设备</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>',
       '<article class="neonwrt-metric" data-metric="memory"><span class="eyebrow">内存</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>',
-      '<article class="neonwrt-metric" data-metric="uptime"><span class="eyebrow">已运行时长</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>'
+      '<article class="neonwrt-metric" data-metric="uptime"><span class="eyebrow">已运行时长</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>',
+      '<article class="neonwrt-metric" data-metric="speed"><span class="eyebrow">下行网速</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>',
+      '<article class="neonwrt-metric" data-metric="traffic"><span class="eyebrow">已用流量</span><strong>--</strong><span class="neonwrt-metric-sub"> </span></article>'
     ].join('');
     anchor.parentNode.insertBefore(wrap, anchor.closest ? (anchor.closest('.cbi-section') || anchor) : anchor);
     refreshOverviewMetrics();
@@ -489,6 +521,7 @@
       ubusCall('luci-rpc', 'getDHCPLeases')
     ]).then(function (result) {
       var wan = findWan(result[0]);
+      var device = wan && (wan.l3_device || wan.device);
       var info = result[1] || {};
       var leases = result[2] || {};
       var address = wan && wan['ipv4-address'] && wan['ipv4-address'][0] && wan['ipv4-address'][0].address;
@@ -523,6 +556,43 @@
         '自启动',
         ''
       );
+
+      return ubusCall('network.device', 'status', device ? { name: device } : {}).then(function (dev) {
+        var stats = dev && dev.statistics;
+        var rx = stats ? Number(stats.rx_bytes) : 0;
+        var tx = stats ? Number(stats.tx_bytes) : 0;
+        var now = Date.now();
+        var downRate = null;
+        var upRate = null;
+
+        if (trafficSample && trafficSample.device === device && stats && now > trafficSample.time) {
+          var seconds = (now - trafficSample.time) / 1000;
+          var downBytes = rx - trafficSample.rx;
+          var upBytes = tx - trafficSample.tx;
+
+          if (seconds >= 1 && downBytes >= 0 && upBytes >= 0) {
+            downRate = downBytes / seconds;
+            upRate = upBytes / seconds;
+          }
+        }
+
+        if (device && stats) {
+          trafficSample = { device: device, time: now, rx: rx, tx: tx };
+        }
+
+        setMetric(
+          wrap.querySelector('[data-metric="speed"]'),
+          downRate == null ? '--' : formatRate(downRate),
+          downRate == null ? '采样中' : ('上行 ' + formatRate(upRate)),
+          ''
+        );
+        setMetric(
+          wrap.querySelector('[data-metric="traffic"]'),
+          stats ? formatBytes(rx + tx) : '--',
+          stats ? ('下行 ' + formatBytes(rx) + ' · 上行 ' + formatBytes(tx)) : '无链路',
+          ''
+        );
+      });
     });
   }
 

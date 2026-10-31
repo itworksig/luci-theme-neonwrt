@@ -1,6 +1,6 @@
 # luci-theme-neonwrt
 
-NeonWrt is a cyber-terminal LuCI theme for OpenWrt. It uses a dark grid surface, Space Mono typography, neon green accents, and compact router-first layouts for status, network, service, and system pages.
+NeonWrt is a HUD-style LuCI theme for OpenWrt. It uses a dark grid, cyan corner marks, semicircle gauges, and a homepage strip for WAN speed and traffic.
 
 The package is pure LuCI template, CSS, and JavaScript, so it is architecture-independent and is released as an `Architecture: all` OpenWrt package.
 
@@ -23,9 +23,9 @@ Download the versioned `luci-theme-neonwrt-vX.Y.Z-all.ipk` asset from the latest
 Or install it from SSH:
 
 ```sh
-scp luci-theme-neonwrt-v0.1.23-all.ipk root@192.168.1.1:/tmp/
+scp luci-theme-neonwrt-v0.1.33-all.ipk root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
-opkg install /tmp/luci-theme-neonwrt-v0.1.23-all.ipk
+opkg install /tmp/luci-theme-neonwrt-v0.1.33-all.ipk
 ```
 
 The post-install script registers the theme and switches LuCI to:
@@ -41,7 +41,7 @@ The package does not ship `/etc/config/*` files, so it will not overwrite router
 The release asset is:
 
 ```text
-luci-theme-neonwrt-v0.1.23-all.ipk
+luci-theme-neonwrt-v0.1.33-all.ipk
 ```
 
 Package metadata:
