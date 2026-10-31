@@ -318,6 +318,7 @@
         enhanceDhcpLeases();
         enhancePasswordRevealButtons();
         normalizeLocalTime();
+        dressBars();
       });
     });
 
@@ -539,21 +540,93 @@
     });
   }
 
+  function barKind(bar) {
+    var row = bar.closest('tr, .tr');
+    var labelCell = row && row.querySelector('td, .td, th, .th');
+    var label = labelCell ? (labelCell.textContent || '') : '';
+
+    if (/空闲|可用|free|available/i.test(label)) {
+      return 'free';
+    }
+
+    if (/缓冲|缓存|buffered|cached/i.test(label)) {
+      return 'neutral';
+    }
+
+    return 'used';
+  }
+
+  function ensureGauge(bar) {
+    var gauge = bar.querySelector(':scope > .neonwrt-gauge');
+
+    if (gauge) {
+      return gauge;
+    }
+
+    gauge = document.createElement('div');
+    gauge.className = 'neonwrt-gauge';
+    gauge.innerHTML = '<svg viewBox="0 0 120 78" aria-hidden="true"><path class="neonwrt-gauge-track" d="M18 50A42 42 0 0 1 102 50"></path><path class="neonwrt-gauge-value" d="M18 50A42 42 0 0 1 102 50"></path></svg><span class="neonwrt-gauge-pct"></span>';
+    bar.insertBefore(gauge, bar.firstChild);
+    return gauge;
+  }
+
   function dressBars() {
     Array.prototype.forEach.call(document.querySelectorAll('.cbi-progressbar'), function (bar) {
-      var fill = bar.querySelector(':scope > div');
+      var fill = bar.querySelector(':scope > .neonwrt-bar-track > div');
 
-      if (fill && !bar.querySelector('.neonwrt-bar-track')) {
+      if (!fill) {
+        fill = bar.querySelector(':scope > div:not(.neonwrt-gauge)');
+      }
+
+      if (fill && !(fill.parentElement && fill.parentElement.classList.contains('neonwrt-bar-track'))) {
         var track = document.createElement('div');
         track.className = 'neonwrt-bar-track';
         bar.insertBefore(track, fill);
         track.appendChild(fill);
       }
 
-      fill = bar.querySelector('.neonwrt-bar-track > div');
       var percent = fill ? parseFloat(fill.style.width) : 0;
-      bar.classList.toggle('is-bad', percent >= 90);
-      bar.classList.toggle('is-warn', percent >= 75 && percent < 90);
+
+      if (isNaN(percent)) {
+        percent = 0;
+      }
+
+      percent = Math.max(0, Math.min(100, percent));
+
+      var kind = barKind(bar);
+      var bad = false;
+      var warn = false;
+
+      if (kind === 'free') {
+        bad = percent <= 10;
+        warn = percent > 10 && percent <= 25;
+      } else if (kind === 'used') {
+        bad = percent >= 90;
+        warn = percent >= 75 && percent < 90;
+      }
+
+      bar.classList.toggle('is-bad', bad);
+      bar.classList.toggle('is-warn', warn);
+
+      var gauge = ensureGauge(bar);
+      var value = gauge.querySelector('.neonwrt-gauge-value');
+      var length = (value && value.getTotalLength()) || (Math.PI * 42);
+      value.style.strokeDasharray = length + ' ' + length;
+      value.style.strokeDashoffset = String(length * (1 - percent / 100));
+      gauge.classList.toggle('is-empty', percent <= 0);
+
+      var pct = gauge.querySelector('.neonwrt-gauge-pct');
+      var pctText = Math.round(percent) + '%';
+
+      if (pct.textContent !== pctText) {
+        pct.textContent = pctText;
+      }
+
+      var caption = (bar.getAttribute('title') || '').replace(/\s*\(\s*\d+(?:\.\d+)?%\s*\)\s*$/, '').trim();
+
+      if (bar.getAttribute('data-caption') !== caption) {
+        bar.setAttribute('data-caption', caption);
+      }
     });
   }
 
@@ -760,6 +833,7 @@
     enhancePasswordRevealButtons();
     installMobileMenu();
     installNavToggle();
+    setInterval(dressBars, 1000);
     setInterval(refreshOverviewMetrics, 5000);
   });
 })();

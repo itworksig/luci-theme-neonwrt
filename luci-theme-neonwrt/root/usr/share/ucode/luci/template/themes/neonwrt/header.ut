@@ -17,7 +17,7 @@
 		<title>{{ striptags(`${boardinfo.hostname ?? 'OpenWrt'}${dispatched?.title ? ` | ${_(dispatched.title)}` : ''}`) }}</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="darkreader-lock">
-		<link rel="stylesheet" href="{{ media }}/cascade.css?v=neonwrt-0.1.20">
+		<link rel="stylesheet" href="{{ media }}/cascade.css?v=neonwrt-0.1.23">
 		{% if (node?.css): %}
 		<link rel="stylesheet" href="{{ resource }}/{{ node.css }}">
 		{% endif %}
@@ -26,7 +26,7 @@
 		{% endif %}
 		<script src="{{ dispatcher.build_url('admin/translations', dispatcher.lang) }}"></script>
 		<script src="{{ resource }}/cbi.js"></script>
-		<script src="{{ media }}/neonwrt.js?v=neonwrt-0.1.20" defer></script>
+		<script src="{{ media }}/neonwrt.js?v=neonwrt-0.1.23" defer></script>
 	</head>
 
 	<body class="lang_{{ dispatcher.lang }} {{ entityencode(striptags(node?.title ?? ''), true) }}" data-page="{{ entityencode(join('-', ctx.request_path), true) }}">
